@@ -34,6 +34,7 @@ prBin16_AY:
     rts
 
 ;; High byte in A, low byte in Y
+;;  Remainder will be place
 DEBUG=0
 .export div10w_AY
 div10w_AY:
@@ -109,6 +110,7 @@ div10w_AY:
     ; set A and Y according to the result
     lda quotientH
     ldy quotientL
+    ldx dividendL ; remainder/modulus
     .if DEBUG
       jmp print_state_cleanup_div10w_AY
     .endif
@@ -178,6 +180,8 @@ print_state_cleanup_div10w_AY:
     pha
     tya
     pha
+    txa
+    pha
     lda Mon_CH ; save current char pos
     pha
     ; clean up screen
@@ -198,7 +202,12 @@ print_state_cleanup_div10w_AY:
     pla
     sta Mon_CH
     pla
+    tax
+    pla
     tay
     pla
     rts
 .endif ; DEBUG
+
+prDec16uw_AY:
+    rts

@@ -109,7 +109,7 @@ FORTHISH_INC_ = 1
       adc #N
       tax
     .endif
-    lda $100,x
+    lda $101,x
     pha
 .endmacro
 
@@ -120,12 +120,12 @@ FORTHISH_INC_ = 1
 .macro rot_
     tsx
     dup_
-    lda $101,x
-    sta $100,x
     lda $102,x
     sta $101,x
-    pla
+    lda $103,x
     sta $102,x
+    pla
+    sta $103,x
 .endmacro
 
 ;; rotb_
@@ -136,12 +136,12 @@ FORTHISH_INC_ = 1
 .macro rotb_
     tsx
     dup_
-    lda $102,x
-    sta $100,x
-    lda $101,x
-    sta $102,x
-    pla
+    lda $103,x
     sta $101,x
+    lda $102,x
+    sta $103,x
+    pla
+    sta $102,x
 .endmacro
 
 ;; roll1_ N
