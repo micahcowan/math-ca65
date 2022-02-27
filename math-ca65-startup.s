@@ -6,7 +6,7 @@
 
 .macro print thing
     lda #thing | $80
-    jsr Mon_COUT1
+    jsr Mon_COUT
 .endmacro
 
 .macro prCR
@@ -28,6 +28,9 @@
     lda #>dividend
     ldy #<dividend
     jsr prBin16_AY
+    lda #>dividend
+    ldy #<dividend
+    jsr prDec16u_AY
     prCR
     lda #>dividend
     ldy #<dividend
@@ -41,6 +44,7 @@
     rot_
 @mk:
     ; stack: x a y (top)
+    copy_ 3
     pla
     tay
     pla
@@ -48,7 +52,17 @@
     ;rotb_
     pla
     jsr prBin8_A
-    
+    ;
+    pla
+    tay
+    pla
+    jsr prDec16u_AY
+    lda #$A0
+    jsr Mon_COUT
+    pla
+    tay
+    lda #$00
+    jsr prDec16u_AY
     prCR
 .endscope
 .endmacro
@@ -71,33 +85,12 @@ Start:
     div10 2560
     div10 320
     ;
-    jsr Mon_RDKEY
+    ;jsr Mon_RDKEY
     ;
-    div10 576;$0240
-    lda #0
-    jsr prBin8_A
-    lda #57
-    jsr prBin8_A
-    prCR
-    ;
-    div10 288;$0120
-    lda #0
-    jsr prBin8_A
-    lda #28
-    jsr prBin8_A
-    prCR
-    ;
+    div10 576
+    div10 288
     div10 65535
-    lda #>6553
-    ldy #<6553
-    jsr prBin16_AY
-    prCR
-    ;
     div10 32768
-    lda #>3276
-    ldy #<3276
-    jsr prBin16_AY
-    prCR
     ;
     prLine "DONE"
 

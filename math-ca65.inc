@@ -10,6 +10,7 @@ MATH_CA65_INC_ = 1
 maybe_import prBin8_A
 maybe_import prBin16_AY
 maybe_import div10w_AY
+maybe_import prDec16u_AY
 
 .delmacro maybe_import
 

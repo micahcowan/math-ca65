@@ -209,5 +209,44 @@ print_state_cleanup_div10w_AY:
     rts
 .endif ; DEBUG
 
-prDec16uw_AY:
+.export prDec16u_AY
+prDec16u_AY:
+    ; push X onto stack while preserving A (no PHX for 6502)
+    ldx #$00
+    stx saveIdx
+@loop:
+    ; divide A Y by 10
+    jsr div10w_AY
+    sta saveA ; preserve answer
+    stx saveX
+    lda saveIdx
+    tax
+    lda saveX
+    ora #$B0
+    sta digits, x ; store modulus in digits
+    lda saveA
+    ; if the division result is 0 then we're done
+    bne @loopNext
+    cpy #0
+    beq @done
+@loopNext:
+    ; quotient !+ 0, we're not done. Increment and loop back!
+    inx
+    stx saveIdx
+    bne @loop
+@done:
+    lda digits,x
+    jsr Mon_COUT
+    dex
+    bpl @done
+@rts:
     rts
+saveX:
+    .byte 0
+saveA:
+    .byte 0
+saveIdx:
+    .byte 0
+digits:
+    .byte 0,0,0,0,0
+digitsEnd:
