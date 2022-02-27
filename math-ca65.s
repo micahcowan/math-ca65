@@ -34,7 +34,7 @@ prBin16_AY:
     rts
 
 ;; High byte in A, low byte in Y
-;;  Remainder will be place
+;;  Remainder will be placed in X register
 DEBUG=0
 .export div10w_AY
 div10w_AY:
