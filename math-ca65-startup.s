@@ -22,9 +22,9 @@
 .endmacro
 
 
-.macro div10 dividend
+.macro divmul10 dividend
 .scope
-    prLine "DIV"
+    prLine "DIV/MUL"
     lda #>dividend
     ldy #<dividend
     jsr prBin16_AY
@@ -53,21 +53,44 @@
     pla
     jsr prBin8_A
     ;
+    copy_ 2
     pla
     tay
     pla
     jsr prDec16u_AY
     lda #$A0
     jsr Mon_COUT
+    rotb_
     pla
     tay
     lda #$00
+    jsr prDec16u_AY
+    prCR
+    ;
+    pla
+    tay
+    pla
+    jsr mul10w_AY
+    pha
+    tya
+    pha
+    copy_ 2
+    pla
+    tay
+    pla
+    ;
+    jsr prBin16_AY
+    pla
+    tay
+    pla
     jsr prDec16u_AY
     prCR
 .endscope
 .endmacro
 
 Start:
+    ldx #$FF
+    txs
     jsr Mon_HOME
     lda #160
     pha
@@ -82,16 +105,22 @@ Start:
     jsr prBin16_AY
     prCR
     ;
-    div10 2560
-    div10 320
+    divmul10 2560
+    divmul10 320
     ;
     ;jsr Mon_RDKEY
     ;
-    div10 576
-    div10 288
-    div10 65535
-    div10 32768
+    divmul10 576
+    divmul10 288
+    divmul10 65535
+    divmul10 32768
     ;
+    lda #$AF
+    jsr Mon_PRBYTE
+    lda #$CD
+    jsr Mon_PRBYTE
+    ;
+    prCR
     prLine "DONE"
 
 Loop:

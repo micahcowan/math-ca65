@@ -141,6 +141,55 @@ divisorL:
 divisorH:
     .byte $FF
 
+.export mul10w_AY
+mul10w_AY:
+    ; initialize values
+    sta multiplicandH
+    sty multiplicandL
+    ldy #$00
+    sty productH
+    sty productL
+    sty multiplierH
+    ; The multiplier gets a value of 5 instead of 10
+    ; to start, because when we shift the first bit off the
+    ; multiplicand into the carry, and simultaneously
+    ; shift multiplier left, we'll have a value of 10
+    ; while we're examining the 1's place.
+    ldy #$05
+    sty multiplierL
+@multLoop:
+    asl multiplierL
+    rol multiplierH
+    bcc @shCand ; if we just shifted off the left bit of
+    bne @shCand ; the ten multiplier, and the right bit's
+    lda productH; nowhere to be found in the high bit,
+    ldy productL; then exit with product
+    rts         ; .
+@shCand:
+    lsr multiplicandH
+    ror multiplicandL ; check next bit of multiplicand
+    bcc @multLoop     ; unset? loop around again
+    lda productL      ; otherwise add the multiplier
+    clc
+    adc multiplierL
+    sta productL
+    lda productH
+    adc multiplierH
+    sta productH
+    jmp @multLoop
+multiplicandL:
+    .byte 0
+multiplicandH:
+    .byte 0
+multiplierL:
+    .byte 0
+multiplierH:
+    .byte 0
+productL:
+    .byte 0
+productH:
+    .byte 0
+
 .ifdef DEBUG
 .macro prstate code, name
     lda #.strat(code,0) | $80
