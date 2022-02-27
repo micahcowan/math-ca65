@@ -299,3 +299,74 @@ saveIdx:
 digits:
     .byte 0,0,0,0,0
 digitsEnd:
+
+;; Pointer to string is in A (high) and Y (low).
+;; The number is assumed to be terminated by a
+;; non-digit number.
+;;   The 16-bit result will be in A (high) and Y (low).
+.export rdDec16u_AY
+rdDec16u_AY:
+    sta @valueH ; temporarily
+    lda $0
+    pha
+    lda $1
+    pha
+    txa
+    pha
+    
+    lda @valueH
+    sta $1
+    sty $0
+    
+    ldy #$0
+    sty @valueH
+    sty @valueL
+@loop:
+    lda ($0),y
+    ; is it a digit?
+    cmp #$B0 ; exit if < '0'
+    bcc @nonDigit
+    cmp #$BA ; or >= ':' (one past '9')
+    bcs @nonDigit
+    ; we have a digit. Convert to number
+    and #$0f
+    
+    pha
+    sty @index
+    
+    ; multiply value by 10
+    lda @valueH
+    ldy @valueL
+    jsr mul10w_AY
+    sta @valueH
+    sty @valueL
+    pla
+    clc
+    adc @valueL
+    sta @valueL
+    lda @valueH
+    adc #$00 ; for carry
+    sta @valueH    
+    
+    ldy @index
+    iny
+    bne @loop ; always
+    
+@nonDigit:
+    pla
+    tax
+    pla
+    sta $1
+    pla
+    sta $0
+    
+    ; exit with our value
+    lda @valueH
+    ldy @valueL
+    rts
+@valueL:
+    .byte 0
+@valueH:
+    .byte 0
+@index:    
+    .byte 0

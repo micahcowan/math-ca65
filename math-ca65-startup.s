@@ -2,6 +2,8 @@
 .include "math-ca65.inc"
 .include "forthish.inc"
 
+.macpack apple2
+
 .segment "SETUP"
 
 .macro print thing
@@ -85,6 +87,26 @@
     pla
     jsr prDec16u_AY
     prCR
+@lp:lda @strtmp
+    beq @donePr
+    jsr Mon_COUT
+    inc @lp+1
+    bne @lp
+    inc @lp+2
+    bne @lp ; "always"
+@donePr:
+    lda #$A0 ; SPC
+    jsr Mon_COUT
+    lda #>@strtmp
+    ldy #<@strtmp
+    jsr rdDec16u_AY
+    jsr prDec16u_AY
+    prCR
+    jmp @end
+@strtmp:
+    scrcode .string(dividend)
+    .byte 0
+@end:
 .endscope
 .endmacro
 
@@ -107,10 +129,10 @@ Start:
     ;
     divmul10 2560
     divmul10 320
-    ;
-    ;jsr Mon_RDKEY
-    ;
     divmul10 576
+    ;
+    jsr Mon_RDKEY
+    ;
     divmul10 288
     divmul10 65535
     divmul10 32768
