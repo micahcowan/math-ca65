@@ -53,6 +53,8 @@ Start:
     div10 2560
     div10 320
     ;
+    jsr Mon_RDKEY
+    ;
     div10 576;$0240
     lda #0
     jsr prBin8_A
@@ -72,6 +74,13 @@ Start:
     ldy #<6553
     jsr prBin16_AY
     prCR
+    ;
+    div10 32768
+    lda #>3276
+    ldy #<3276
+    jsr prBin16_AY
+    prCR
+    ;
     prLine "DONE"
 
 Loop:
