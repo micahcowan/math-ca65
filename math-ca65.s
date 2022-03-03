@@ -300,27 +300,42 @@ digits:
     .byte 0,0,0,0,0
 digitsEnd:
 
-;; Pointer to string is in A (high) and Y (low).
+;; Pointer to string is on stack, highest byte most-recent.
+;; Y register is an index into that string.
+;; 
 ;; The number is assumed to be terminated by a
 ;; non-digit number.
-;;   The 16-bit result will be in A (high) and Y (low).
-.export rdDec16u_AY
-rdDec16u_AY:
-    sta @valueH ; temporarily
+;;   The 16-bit result will be placed on the stack,
+;;   highest byte will pull first.
+;;   
+.export rdDec16u
+rdDec16u:
+    tya
+    pha
+    ; stack: strL strH <RET WORD> pushY (top)
+    rollb1_ 5
+    rollb1_ 5
+    ;stack: <RET> pushY strL strH
     lda $0
     pha
     lda $1
     pha
-    txa
-    pha
+    roll1_ 5
+    roll1_ 5
+    ;stack: <RET> z0 z1 pushY strL strH
     
-    lda @valueH
+    ; Now set up string in ZP
+    pla
     sta $1
-    sty $0
+    pla
+    sta $0
     
     ldy #$0
     sty @valueH
     sty @valueL
+    
+    pla
+    tay ; now we have caller's original Y
 @loop:
     lda ($0),y
     ; is it a digit?
@@ -354,15 +369,16 @@ rdDec16u_AY:
     
 @nonDigit:
     pla
-    tax
-    pla
     sta $1
     pla
     sta $0
     
     ; exit with our value
+    lda @valueL
+    pha
     lda @valueH
-    ldy @valueL
+    pha
+    swapW_ ; swap so return addr on top
     rts
 @valueL:
     .byte 0

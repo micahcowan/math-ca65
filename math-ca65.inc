@@ -12,7 +12,7 @@ maybe_import prBin16_AY
 maybe_import div10w_AY
 maybe_import mul10w_AY
 maybe_import prDec16u_AY
-maybe_import rdDec16u_AY
+maybe_import rdDec16u
 
 .delmacro maybe_import
 

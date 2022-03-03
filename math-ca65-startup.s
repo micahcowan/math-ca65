@@ -97,9 +97,15 @@
 @donePr:
     lda #$A0 ; SPC
     jsr Mon_COUT
+    lda #<@strtmp
+    pha
     lda #>@strtmp
-    ldy #<@strtmp
-    jsr rdDec16u_AY
+    pha
+    jsr rdDec16u
+    swap_ ; high byte last
+    pla
+    tay
+    pla
     jsr prDec16u_AY
     prCR
     jmp @end
