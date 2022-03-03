@@ -379,6 +379,8 @@ rdDec16u:
     lda @valueH
     pha
     swapW_ ; swap so return addr on top
+    ldy @index
+    iny
     rts
 @valueL:
     .byte 0
