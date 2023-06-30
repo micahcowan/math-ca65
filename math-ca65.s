@@ -2,6 +2,8 @@
 ;#define CFGFILE math-ca65.cfg
 ;#link "math-ca65-startup.s"
 ;#link "forthish.s"
+;#link "div32.s"
+;#resource "division.inc"
 
 .include "forthish.inc"
 .include "a2-monitor.inc"

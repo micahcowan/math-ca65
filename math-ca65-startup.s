@@ -1,6 +1,7 @@
 .include "a2-monitor.inc"
 .include "math-ca65.inc"
 .include "forthish.inc"
+.include "division.inc"
 
 .macpack apple2
 
@@ -12,7 +13,7 @@
 .endmacro
 
 .macro prCR
-    print $0D
+    jsr Mon_CROUT
 .endmacro
 
 .macro prLine str
@@ -116,6 +117,54 @@
 .endscope
 .endmacro
 
+.macro write32 loca, valu
+.repeat 4,i
+lda #((valu >> ((3-i) * 8)) & $ff)
+sta loca+i
+.endrepeat
+.endmacro
+
+.macro print32 loca
+.repeat 4,i
+lda loca+i
+jsr prBin8_A
+.endrepeat
+prCR
+.repeat 4,i
+lda loca+i
+jsr Mon_PRBYTE
+.endrepeat
+prCR
+.endmacro
+
+.macro doDiv32 dividend, divisor
+    write32 locDividend, dividend
+    write32 locDivisor, divisor
+    prLine "DEND"
+    print32 locDividend
+    prLine "DSOR"
+    print32 locDivisor
+    jsr div32
+    prLine "QUOT"
+    print32 locQuotient
+    prLine "REM"
+    print32 locRemainder
+.endmacro
+
+.macro doDiv16 dividend, divisor
+    write32 locDividend, (dividend << 16)
+    write32 locDivisor, (divisor << 16)
+    prLine "DEND"
+    print32 locDividend
+    prLine "DSOR"
+    print32 locDivisor
+    jsr div16
+    prLine "QUOT"
+    print32 locQuotient
+    prLine "REM"
+    print32 locRemainder
+.endmacro
+
 Start:
     ldx #$FF
     txs
@@ -137,7 +186,7 @@ Start:
     divmul10 320
     divmul10 576
     ;
-    jsr Mon_RDKEY
+    ;jsr Mon_RDKEY
     ;
     divmul10 288
     divmul10 65535
@@ -147,9 +196,23 @@ Start:
     jsr Mon_PRBYTE
     lda #$CD
     jsr Mon_PRBYTE
+    prCR
+    ;
+@doDivs:
+    prLine "DIV32"
+    doDiv32 61363620, 120
+    ;jsr Mon_RDKEY
+    prCR
+    doDiv16 1027, 256
     ;
     prCR
     prLine "DONE"
 
 Loop:
     jmp Loop
+
+div32:
+    makeDivisionRoutine 4
+div16:
+    makeDivisionRoutine 2
+    
